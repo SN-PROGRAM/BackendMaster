@@ -5,6 +5,7 @@ BackendMaster — это образовательная платформа, ра
 1. Клонируйте репозиторий
 
 git clone https://github.com/S-NOWNUM-B/BackendMaster.git
+
 cd BackendMaster
 
 2. Создайте и активируйте виртуальное окружение
