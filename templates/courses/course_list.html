@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Лист Курсов - BackendMaster{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Доступные курсы</h1>
+    {% if courses %}
+        <div class="row">
+            {% for course in courses %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {% if course.image %}
+                            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'courses:course_detail' course.pk %}">{{ course.title }}</a>
+                            </h5>
+                            <p class="card-text">{{ course.category.name }}</p>
+                            {% if user.is_authenticated and user.is_staff %}
+                                <a href="{% url 'courses:course_update' course.pk %}" class="btn btn-primary btn-sm">Редактировать</a>
+                                <a href="{% url 'courses:course_delete' course.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Нет доступных курсов.</p>
+    {% endif %}
+{% endblock %}

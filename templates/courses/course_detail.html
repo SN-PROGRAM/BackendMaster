@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - BackendMaster{% endblock %}
+
+{% block content %}
+    <h1>{{ course.title }}</h1>
+    <p>{{ course.description }}</p>
+    <p><strong>Instructor:</strong> {{ course.instructor.username }}</p>
+    <p><strong>Category:</strong> {{ course.category.name }}</p>
+    {% if course.image %}
+        <img src="{{ course.image.url }}" class="img-fluid mb-3" alt="{{ course.title }}" style="max-height: 300px;">
+    {% endif %}
+
+    <h2 class="mt-4">Уроки</h2>
+    {% if course.lessons.all %}
+        <ul class="list-group mb-4">
+            {% for lesson in course.lessons.all %}
+                <li class="list-group-item">{{ lesson.title }} (Заказ: {{ lesson.order }})</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Уроки не проводяться</p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        {% if is_enrolled %}
+            <p class="text-success">Вы записаны на этот курс</p>
+        {% else %}
+            <a href="{% url 'courses:enroll_course' course.pk %}" class="btn btn-success">Запишитесь на этот курс</a>
+        {% endif %}
+    {% else %}
+        <p>Пожалуйста <a href="{% url 'login' %}">зарегистрируйтесь</a> чтобы записаться на курс.</p>
+    {% endif %}
+{% endblock %}
