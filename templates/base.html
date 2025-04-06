@@ -26,7 +26,10 @@
                <nav class="navbar-expand-lg">
                    <div class="container">
                        {% if user.is_authenticated %}
-                           <span class="navbar-text">Привет, {{ user.username }}! <a href="{% url 'logout' %}">Выйти</a></span>
+                           <form method="POST" action="{%  url 'logout' %}">
+                            {%  csrf_token %}
+                           <span class="navbar-text">Привет, {{ user.username }}! <button type="submit">Выйти</button></span>
+                           </form>
                        {% else %}
                            <a class="navbar-text" href="{% url 'login' %}">Войти</a>
                        {% endif %}
