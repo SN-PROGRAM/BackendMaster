@@ -4,7 +4,7 @@ BackendMaster — это образовательная платформа, ра
 
 1. Клонируйте репозиторий
 
-git clone [https://github.com/S-NOWNUM-B/BackendMaster.git](https://github.com/SN-PROGRAM/BackendMaster)
+git clone https://github.com/SN-PROGRAM/BackendMaster
 
 cd BackendMaster
 
