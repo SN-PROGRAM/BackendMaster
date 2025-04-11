@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class Category(models.Model):
+class Category(models.Model): #Модель категории курсов
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(blank=True)
@@ -13,7 +13,7 @@ class Category(models.Model):
         verbose_name = "Category"
         verbose_name_plural = "Categories"
 
-class Course(models.Model):
+class Course(models.Model): #Модель курса
     title = models.CharField(max_length=200)
     description = models.TextField()
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses")
@@ -30,7 +30,7 @@ class Course(models.Model):
         verbose_name = "Course"
         verbose_name_plural = "Courses"
 
-class Lesson(models.Model):
+class Lesson(models.Model): #Модель урока
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
     title = models.CharField(max_length=200)
     content = models.TextField()
@@ -46,7 +46,7 @@ class Lesson(models.Model):
         verbose_name_plural = "Lessons"
         ordering = ["order"]
 
-class Enrollment(models.Model):
+class Enrollment(models.Model): #Модель записи пользователя
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="enrollments")
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="enrollments")
     enrolled_at = models.DateTimeField(auto_now_add=True)

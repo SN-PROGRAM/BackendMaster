@@ -3,11 +3,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .forms import UserForm  # Форма регистрации
+from .forms import UserForm
 from django.contrib.auth.models import User
 
 
-def signup(request):
+def signup(request): #Регистрация
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES)
         if form.is_valid():
@@ -15,9 +15,8 @@ def signup(request):
             nickname = form.cleaned_data['nickname']
             password = form.cleaned_data['password']
             password_confirm = form.cleaned_data['password_confirm']
-
             if password != password_confirm:
-                form.add_error('password_confirm', 'Пароли не совпадают')
+                form.add_error('password_confirm', 'Пароли не совпадают')  #Проверка ввода данных
             else:
                 # Создаем пользователя
                 user = User(
@@ -26,11 +25,9 @@ def signup(request):
                     first_name=form.cleaned_data['first_name'],
                     last_name=form.cleaned_data['last_name']
                 )
-                user.set_password(password)  # вот этот метод должен быть
+                user.set_password(password)
                 user.save()
-
-                # Здесь можно добавить сохранение аватара, если он отдельно
-                return redirect('login')  # или куда нужно
+                return redirect('login')
     else:
         form = UserForm()
 
