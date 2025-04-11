@@ -4,7 +4,15 @@
 {% block title %}Лист Курсов - BackendMaster{% endblock %}
 
 {% block content %}
+    <!-- Кнопка для редактирования профиля в правом верхнем углу -->
+    {% if user.is_authenticated %}
+        <div class="d-flex justify-content-end mb-3">
+            <a href="{% url 'edit_profile' %}" class="btn btn-secondary">Редактировать профиль</a>
+        </div>
+    {% endif %}
+
     <h1 class="mb-4">Доступные курсы</h1>
+
     {% if courses %}
         <div class="row">
             {% for course in courses %}

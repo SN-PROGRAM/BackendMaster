@@ -1,16 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Course, Enrollment
-from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render
 from .forms import CourseForm
+
 
 def home(request):
     return render(request, 'base.html')
+
+
 class CourseListView(ListView):
     model = Course
     template_name = 'courses/course_list.html'
@@ -69,12 +70,6 @@ class CourseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == course.instructor or self.request.user.is_staff
 
 
-class SignUpView(CreateView):
-    form_class = UserCreationForm
-    template_name = 'registration/../templates/users/signup.html'
-    success_url = reverse_lazy('login')
-
-
 @login_required
 def enroll_course(request, pk):
     course = get_object_or_404(Course, pk=pk)
@@ -89,30 +84,3 @@ def enroll_course(request, pk):
         messages.success(request, f"You have successfully enrolled in {course.title}!")
 
     return redirect('courses:course_detail', pk=course.pk)
-
-class CourseListView(ListView):
-    model = Course
-    template_name = 'courses/course_list.html'
-    context_object_name = 'courses'
-
-class CourseDetailView(DetailView):
-    model = Course
-    template_name = 'courses/course_detail.html'
-    context_object_name = 'course'
-
-class CourseCreateView(CreateView):
-    model = Course
-    form_class = CourseForm
-    template_name = 'courses/course_form.html'
-    success_url = reverse_lazy('courses:course_list')
-
-class CourseUpdateView(UpdateView):
-    model = Course
-    form_class = CourseForm
-    template_name = 'courses/course_form.html'
-    success_url = reverse_lazy('courses:course_list')
-
-class CourseDeleteView(DeleteView):
-    model = Course
-    template_name = 'courses/course_confirm_delete.html'
-    success_url = reverse_lazy('courses:course_list')
