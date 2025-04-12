@@ -8,6 +8,7 @@
     {% load static %}
 
     <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'css/PrimaryStyle.css' %}" rel="stylesheet">
     <script src="{% static 'js/bootstrap.bundle.js' %}" defer></script>
 </head>
 <body>
@@ -23,18 +24,17 @@
                         <a class="nav-link" href="{% url 'courses:course_list' %}">Курсы</a>
                     </li>
                 </ul>
-               <nav class="navbar-expand-lg">
-                   <div class="container">
-                       {% if user.is_authenticated %}
-                           <form method="POST" action="{%  url 'logout' %}">
-                            {%  csrf_token %}
-                           <span class="navbar-text">Привет, {{ user.username }}! <button type="submit">Выйти</button></span>
-                           </form>
-                       {% else %}
-                           <a class="navbar-text" href="{% url 'login' %}">Войти</a>
-                       {% endif %}
-                   </div>
-               </nav>
+                <div class="d-flex">
+                    {% if user.is_authenticated %}
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <span class="navbar-text me-2">Привет, {{ user.username }}!</span>
+                            <button type="submit" class="btn btn-outline-secondary">Выйти</button>
+                        </form>
+                    {% else %}
+                        <a class="btn btn-outline-primary" href="{% url 'login' %}">Войти</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
