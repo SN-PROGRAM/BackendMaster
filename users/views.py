@@ -4,38 +4,22 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import UserForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User  # Или ваша кастомная модель пользователя
 
 
-def signup(request): #Регистрация
+def signup(request):  # Регистрация
     if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES)
+        form = RegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            # Вытаскиваем данные из формы
-            nickname = form.cleaned_data['nickname']
-            password = form.cleaned_data['password']
-            password_confirm = form.cleaned_data['password_confirm']
-            if password != password_confirm:
-                form.add_error('password_confirm', 'Пароли не совпадают')  #Проверка ввода данных
-            else:
-                # Создаем пользователя
-                user = User(
-                    username=nickname,
-                    email=form.cleaned_data['email'],
-                    first_name=form.cleaned_data['first_name'],
-                    last_name=form.cleaned_data['last_name']
-                )
-                user.set_password(password)
-                user.save()
-                return redirect('login')
+            form.save()
+            messages.success(request, "Регистрация прошла успешно! Теперь вы можете войти в систему.")
+            return redirect('login')
     else:
-        form = UserForm()
-
+        form = RegistrationForm()
     return render(request, 'users/signup.html', {'form': form})
 
 
-# Вход
-def login_view(request):
+def login_view(request):  # Вход в систему
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -49,23 +33,20 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
 
+
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES, instance=request.user)  # Передаем request.FILES для обработки изображений
-        if form.is_valid():# Обработка аватара и никнейма
-            user = form.save(commit=False)# Если пароль был введен, то его нужно обновить
-            password = form.cleaned_data.get('password')
-            if password:
-                user.set_password(password)  # Устанавливаем новый пароль, если он есть
-            user.save()
-
+        form = UserForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
             messages.success(request, "Ваш профиль успешно обновлен!")
-            return redirect('profile')  # Перенаправляем на страницу профиля
+            return redirect('profile')
     else:
         form = UserForm(instance=request.user)
-
     return render(request, 'users/edit_profile.html', {'form': form})
 
-def profile_view(request):
-    return render(request, 'users/profile.html')  # шаблон для отображения профиля
+
+
+def profile_view(request):  # Отображение профиля
+    return render(request, 'users/profile.html')

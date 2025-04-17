@@ -1,41 +1,47 @@
-{% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Лист Курсов - BackendMaster{% endblock %}
-
-{% block content %}
-    <!-- Кнопка для редактирования профиля в правом верхнем углу -->
-    {% if user.is_authenticated %}
-        <div class="d-flex justify-content-end mb-3">
-            <a href="{% url 'edit_profile' %}" class="btn btn-secondary">Редактировать профиль</a>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}BackendMaster{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">BackendMaster</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Переключить навигацию">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'edit_profile' %}">Редактировать профиль</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'signup' %}">Регистрация</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    {% endif %}
+    </nav>
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
 
-    <h1 class="mb-4">Доступные курсы</h1>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
 
-    {% if courses %}
-        <div class="row">
-            {% for course in courses %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        {% if course.image %}
-                            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <a href="{% url 'courses:course_detail' course.pk %}">{{ course.title }}</a>
-                            </h5>
-                            <p class="card-text">{{ course.category.name }}</p>
-                            {% if user.is_authenticated and user.is_staff %}
-                                <a href="{% url 'courses:course_update' course.pk %}" class="btn btn-primary btn-sm">Редактировать</a>
-                                <a href="{% url 'courses:course_delete' course.pk %}" class="btn btn-danger btn-sm">Удалить</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Нет доступных курсов.</p>
-    {% endif %}
-{% endblock %}
