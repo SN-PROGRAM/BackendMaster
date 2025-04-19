@@ -1,38 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}BackendMaster{% endblock %}</title>
-
     {% load static %}
 
     <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
     <link href="{% static 'css/PrimaryStyle.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="{% static 'js/bootstrap.bundle.js' %}" defer></script>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">BackendMaster</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+<body class="d-flex flex-column min-vh-100">
+    <!-- Навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                <i class="fas fa-server me-2"></i>BackendMaster
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'courses:course_list' %}">Курсы</a>
+                        <a class="nav-link" href="{% url 'courses:course_list' %}">
+                            <i class="fas fa-book-open me-1"></i> Курсы
+                        </a>
                     </li>
                 </ul>
                 <div class="d-flex">
                     {% if user.is_authenticated %}
-                        <form method="POST" action="{% url 'logout' %}">
+                        <form method="POST" action="{% url 'logout' %}" class="d-flex align-items-center">
                             {% csrf_token %}
-                            <span class="navbar-text me-2">Привет, {{ user.username }}!</span>
-                            <button type="submit" class="btn btn-outline-secondary">Выйти</button>
+                            <span class="text-white me-3">
+                                <i class="fas fa-user-circle me-1"></i> {{ user.username }}
+                            </span>
+                            <button type="submit" class="btn btn-light">
+                                <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                            </button>
                         </form>
                     {% else %}
-                        <a class="btn btn-outline-primary" href="{% url 'login' %}">Войти</a>
+                        <a class="btn btn-light" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Войти
+                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -44,15 +55,46 @@
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
     </div>
 
-    <div class="container mt-4">
+    <!-- Основное содержимое -->
+    <main class="container my-4 flex-grow-1">
         {% block content %}
         {% endblock %}
-    </div>
+    </main>
+
+    <footer class="bg-primary-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-server me-2"></i> BackendMaster
+                    </h5>
+                    <p>
+                        Профессиональные курсы по backend-разработке
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="fw-bold mb-3">Контакты</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-envelope me-2"></i> info@backendmaster.ru
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone me-2"></i> +7 (123) 456-78-90
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 BackendMaster. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
