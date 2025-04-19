@@ -4,7 +4,9 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .forms import UserForm
-from django.contrib.auth.models import User  # Или ваша кастомная модель пользователя
+from .forms import RegistrationForm
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
 
 
 def signup(request):  # Регистрация
@@ -48,5 +50,12 @@ def edit_profile(request):
 
 
 
-def profile_view(request):  # Отображение профиля
-    return render(request, 'users/profile.html')
+def profile_view(request):
+    user_id = request.user.id# Отображение профиля
+    user = User.objects.get(id=user_id)
+    return render(request, 'users/profile.html', {'user': user})
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, "Вы успешно вышли из системы.")
+    return redirect('login')

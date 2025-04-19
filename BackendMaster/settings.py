@@ -135,4 +135,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_REDIRECT_URL = '/courses/'
 LOGIN_URL = 'login'  # или путь к странице входа
+LOGOUT_REDIRECT_URL = 'base'
+
 
