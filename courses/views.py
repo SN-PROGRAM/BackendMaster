@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator
 from .models import Course, Enrollment, Lesson
 from .forms import CourseForm
@@ -75,6 +75,28 @@ class CourseLearnView(LoginRequiredMixin, DetailView):
     template_name = 'courses/course_learn.html'
     context_object_name = 'course'
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        lessons = self.object.lessons.all().order_by('order')
+        lesson_id = request.GET.get('lesson_id')
+        current_lesson = get_object_or_404(Lesson, id=lesson_id, course=self.object) if lesson_id else lessons.first()
+
+        # Получаем код пользователя из формы
+        user_code = request.POST.get('user_code', '').strip()
+
+        # Сравниваем с правильным решением (игнорируем пробелы и переносы строк)
+        correct_solution = current_lesson.solution.strip()
+        is_correct = user_code == correct_solution
+
+        # Сохраняем результат в сессии, чтобы отобразить сообщение
+        request.session['is_correct'] = is_correct
+        request.session['user_code'] = user_code
+
+        # Формируем URL с GET-параметром lesson_id
+        redirect_url = reverse('courses:course_learn', kwargs={'pk': self.object.pk})
+        redirect_url += f'?lesson_id={current_lesson.id}'
+        return redirect(redirect_url)
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not Enrollment.objects.filter(user=self.request.user, course=self.object).exists():
@@ -102,7 +124,10 @@ class CourseLearnView(LoginRequiredMixin, DetailView):
         if 'mark_completed' in self.request.GET:
             enrollment.completed_lessons.add(current_lesson)
             messages.success(request, f"Урок '{current_lesson.title}' отмечен как пройденный!")
-            return redirect('courses:course_learn', pk=self.object.pk, lesson_id=current_lesson.id)
+            # Формируем URL с GET-параметром lesson_id
+            redirect_url = reverse('courses:course_learn', kwargs={'pk': self.object.pk})
+            redirect_url += f'?lesson_id={current_lesson.id}'
+            return redirect(redirect_url)
 
         # Определяем предыдущий и следующий уроки
         lesson_ids = list(lessons.values_list('id', flat=True))
@@ -110,20 +135,26 @@ class CourseLearnView(LoginRequiredMixin, DetailView):
         previous_lesson_id = lesson_ids[current_index - 1] if current_index > 0 else None
         next_lesson_id = lesson_ids[current_index + 1] if current_index < len(lesson_ids) - 1 else None
 
+        # Получаем результат проверки из сессии
+        is_correct = request.session.get('is_correct')
+        user_code = request.session.get('user_code', '')
+
         context = self.get_context_data(
             object=self.object,
             current_lesson=current_lesson,
             lessons=lessons,
             previous_lesson_id=previous_lesson_id,
             next_lesson_id=next_lesson_id,
-            enrollment=enrollment
+            enrollment=enrollment,
+            is_correct=is_correct,
+            user_code=user_code
         )
         return self.render_to_response(context)
 
 # Создание нового урока. Доступно только администраторам
 class LessonCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Lesson
-    fields = ['title', 'content', 'video', 'order']
+    fields = ['title', 'material', 'task', 'solution', 'video', 'order', 'content']
     template_name = 'courses/lesson_form.html'
 
     def test_func(self):
@@ -139,7 +170,7 @@ class LessonCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 # Редактирование урока. Доступно только администраторам
 class LessonUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Lesson
-    fields = ['title', 'content', 'video', 'order']
+    fields = ['title', 'material', 'task', 'solution', 'video', 'order', 'content']
     template_name = 'courses/lesson_form.html'
     pk_url_kwarg = 'lesson_pk'
 

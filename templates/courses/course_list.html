@@ -5,11 +5,19 @@
 
 {% block content %}
     <h1>Список курсов</h1>
+
+{#    #}
+{#      Комментарий:#}
+{#      1. Цикл {% for course in courses %} используется для отображения всех курсов.#}
+{#      2. Для каждого курса выводится карточка с названием, описанием и кнопкой для перехода на страницу курса.#}
+{#      3. Если курсов нет (через {% empty %}), выводится сообщение "Курсов пока нет".#}
+{#    #}
     {% for course in courses %}
         <div class="card mb-3">
             <div class="card-body">
                 <h2 class="card-title">{{ course.title }}</h2>
                 <p class="card-text">{{ course.description }}</p>
+                {# Кнопка для перехода на страницу с подробностями курса #}
                 <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-primary">Подробнее</a>
             </div>
         </div>
