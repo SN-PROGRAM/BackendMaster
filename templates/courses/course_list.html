@@ -1,33 +1,50 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}BackendMaster{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-dark position-relative">
+    <div class="container position-relative">
+      {# Кнопка «Выйти» в левом углу #}
+      {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}"
+           class="text-light position-absolute start-0 ps-3">
+          Выйти
+        </a>
+      {% endif %}
 
-{% block title %}Лист Курсов - BackendMaster{% endblock %}
+      {# Центр: бренд #}
+      <span class="navbar-brand mx-auto">BackendMaster</span>
 
-{% block content %}
-    <h1 class="mb-4">Доступные курсы</h1>
-    {% if courses %}
-        <div class="row">
-            {% for course in courses %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        {% if course.image %}
-                            <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <a href="{% url 'courses:course_detail' course.pk %}">{{ course.title }}</a>
-                            </h5>
-                            <p class="card-text">{{ course.category.name }}</p>
-                            {% if user.is_authenticated and user.is_staff %}
-                                <a href="{% url 'courses:course_update' course.pk %}" class="btn btn-primary btn-sm">Редактировать</a>
-                                <a href="{% url 'courses:course_delete' course.pk %}" class="btn btn-danger btn-sm">Удалить</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Нет доступных курсов.</p>
-    {% endif %}
-{% endblock %}
+      {# Аватар в правом углу #}
+      {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}"
+           class="position-absolute end-0 pe-3">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}"
+                 alt="avatar"
+                 class="rounded-circle"
+                 style="width:32px; height:32px; object-fit:cover;">
+          {% else %}
+            <img src="{% static 'images/default-avatar.png' %}"
+                 alt="avatar"
+                 class="rounded-circle"
+                 style="width:32px; height:32px; object-fit:cover;">
+          {% endif %}
+        </a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
