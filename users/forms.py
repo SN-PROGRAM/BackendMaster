@@ -1,93 +1,82 @@
-# users/forms.py
 from django import forms
-from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+from .models import User
 
-class UserForm(forms.ModelForm):
+User = get_user_model()
+class RegistrationForm(forms.ModelForm):
     nickname = forms.CharField(max_length=50, label="Никнейм")
     email = forms.EmailField(label="Email")
-    password = forms.CharField(widget=forms.PasswordInput(), label='Пароль', required=False)
-    password_confirm = forms.CharField(widget=forms.PasswordInput(), label='Подтверждение пароля', required=False)
+    password1 = forms.CharField(label="Пароль", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Подтверждение пароля", widget=forms.PasswordInput)
     avatar = forms.ImageField(required=False, label="Аватар")
 
     class Meta:
         model = User
-        fields = [
-            'nickname', 'email', 'avatar','password', 'password_confirm']
+        fields = ('nickname', 'email', 'avatar')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        is_creation = not self.instance.pk
-        for field in ('password', 'password_confirm'):
-            self.fields[field].required = is_creation
+    def clean_nickname(self):
+        nick = self.cleaned_data['nickname']
+        if User.objects.filter(username=nick).exists():
+            raise ValidationError("Этот никнейм уже занят.")
+        return nick
 
     def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        confirm = cleaned_data.get('password_confirm')
-        if password or confirm:
-            if password != confirm:
-                raise forms.ValidationError("Пароли не совпадают.")
-        return cleaned_data
+        cleaned = super().clean()
+        p1 = cleaned.get('password1')
+        p2 = cleaned.get('password2')
+        if not p1 or not p2:
+            raise ValidationError("Оба поля пароля обязательны.")
+        if p1 != p2:
+            raise ValidationError("Пароли не совпадают.")
+        return cleaned
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        # Синхронизируем nickname и username
+        user.username = self.cleaned_data['nickname']
         user.nickname = self.cleaned_data['nickname']
-        password = self.cleaned_data.get('password')
-        if password:
-            user.set_password(password)
+        user.email = self.cleaned_data['email']
+        user.set_password(self.cleaned_data['password1'])
         if commit:
             user.save()
         return user
 
 
-class RegistrationForm(UserForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['password'].required = True
-        self.fields['password_confirm'].required = True
+class ProfileForm(forms.ModelForm):
+    nickname = forms.CharField(max_length=50, label="Никнейм")
+    email = forms.EmailField(label="Email")
+    password = forms.CharField(label="Новый пароль", widget=forms.PasswordInput, required=False)
+    password_confirm = forms.CharField(label="Подтверждение пароля", widget=forms.PasswordInput, required=False)
+    avatar = forms.ImageField(required=False, label="Аватар")
+
+    class Meta:
+        model = User
+        fields = ('nickname', 'email', 'avatar', 'password', 'password_confirm')
 
     def clean_nickname(self):
-        nickname = self.cleaned_data['nickname']
-        if User.objects.filter(username=nickname).exists():
-            raise forms.ValidationError("Этот ник уже занят.")
-        return nickname
+        nick = self.cleaned_data['nickname']
+        qs = User.objects.filter(username=nick).exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Этот никнейм уже занят.")
+        return nick
 
+    def clean(self):
+        cleaned = super().clean()
+        p = cleaned.get('password')
+        pc = cleaned.get('password_confirm')
+        if p or pc:
+            if p != pc:
+                raise ValidationError("Пароли не совпадают.")
+        return cleaned
 
-# users/views.py
-from django.contrib import messages
-from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-
-from .forms import RegistrationForm, UserForm
-
-
-def signup(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, f"Добро пожаловать, {user.username}!")
-            return redirect('home')
-        else:
-            messages.error(request, "Проверьте корректность введённых данных.")
-    else:
-        form = RegistrationForm()
-    return render(request, 'users/signup.html', {'form': form})
-
-
-@login_required
-def edit_profile(request):
-    if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Профиль обновлён.")
-            return redirect('profile')
-        else:
-            messages.error(request, "Проверьте корректность введённых данных.")
-    else:
-        form = UserForm(instance=request.user)
-    return render(request, 'users/edit_profile.html', {'form': form})
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = self.cleaned_data['nickname']
+        user.nickname = self.cleaned_data['nickname']
+        user.email = self.cleaned_data['email']
+        new_password = self.cleaned_data.get('password')
+        if new_password:
+            user.set_password(new_password)
+        if commit:
+            user.save()
+        return user

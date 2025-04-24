@@ -1,61 +1,65 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .forms import UserForm
-from .forms import RegistrationForm
-from django.contrib.auth import logout
-from django.contrib.auth.models import User
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import RegistrationForm, ProfileForm
+from django.contrib.auth import update_session_auth_hash
 
 
-def signup(request):  # Регистрация
+def signup(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Регистрация прошла успешно! Теперь вы можете войти в систему.")
-            return redirect('login')
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Добро пожаловать")
+            return redirect('profile')
+        else:
+            messages.error(request, "Пожалуйста, исправьте данные")
     else:
         form = RegistrationForm()
     return render(request, 'users/signup.html', {'form': form})
 
 
-def login_view(request):  # Вход в систему
+def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            messages.success(request, f"С возвращением, {user.username}!")
-            return redirect('home')
+            messages.success(request, "Вы успешно вошли.")
+            return redirect('profile')
         else:
-            messages.error(request, "Неверное имя пользователя или пароль.")
+            messages.error(request, "Неправильный логин или пароль.")
     else:
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
 
 
 @login_required
-def edit_profile(request):
-    if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Ваш профиль успешно обновлен!")
-            return redirect('profile')
-    else:
-        form = UserForm(instance=request.user)
-    return render(request, 'users/edit_profile.html', {'form': form})
-
-
-
-def profile_view(request):
-    user_id = request.user.id# Отображение профиля
-    user = User.objects.get(id=user_id)
-    return render(request, 'users/profile.html', {'user': user})
-
 def logout_view(request):
     logout(request)
-    messages.success(request, "Вы успешно вышли из системы.")
+    messages.info(request, "Вы вышли из аккаунта.")
     return redirect('login')
+
+
+@login_required
+def profile_view(request):
+    return render(request, 'users/profile.html', {'user': request.user})
+
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Профиль успешно обновлён.")
+            return redirect('profile')
+        else:
+            messages.error(request, "Пожалуйста, введите корректные данные")
+    else:
+        form = ProfileForm(instance=request.user)
+    return render(request, 'users/edit_profile.html', {'form': form})

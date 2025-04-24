@@ -136,5 +136,4 @@ LOGOUT_REDIRECT_URL = 'login'
 LOGIN_REDIRECT_URL = '/courses/'
 LOGIN_URL = 'login'  # или путь к странице входа
 LOGOUT_REDIRECT_URL = 'base'
-
-
+AUTH_USER_MODEL = 'users.User'
