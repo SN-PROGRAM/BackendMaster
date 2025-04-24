@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Редактировать урок{% else %}Добавить урок{% endif %} - BackendMaster{% endblock %}
+
+{% block content %}
+  <h1>{% if form.instance.pk %}Редактировать урок{% else %}Добавить урок{% endif %}</h1>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    {% if form.instance.pk %}
+      <a href="{% url 'courses:course_detail' pk=request.resolver_match.kwargs.course_pk %}" class="btn btn-secondary">Отмена</a>
+    {% else %}
+      <a href="{% url 'courses:course_detail' pk=request.resolver_match.kwargs.pk %}" class="btn btn-secondary">Отмена</a>
+    {% endif %}
+  </form>
+{% endblock %}

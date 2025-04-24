@@ -1,35 +1,104 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}{{ course.title }} - BackendMaster{% endblock %}
 
 {% block content %}
-    <h1>{{ course.title }}</h1>
-    <p>{{ course.description }}</p>
-    <p><strong>Instructor:</strong> {{ course.instructor.username }}</p>
-    <p><strong>Category:</strong> {{ course.category.name }}</p>
-    {% if course.image %}
-        <img src="{{ course.image.url }}" class="img-fluid mb-3" alt="{{ course.title }}" style="max-height: 300px;">
-    {% endif %}
+  <h1>{{ course.title }}</h1>
+  <p>{{ course.description }}</p>
+  <p><strong>Инструктор:</strong> {{ course.instructor.username }}</p>
 
-    <h2 class="mt-4">Уроки</h2>
-    {% if course.lessons.all %}
-        <ul class="list-group mb-4">
-            {% for lesson in course.lessons.all %}
-                <li class="list-group-item">{{ lesson.title }} (Заказ: {{ lesson.order }})</li>
-            {% endfor %}
-        </ul>
+  {% if course.image %}
+    <img src="{{ course.image }}" alt="{{ course.title }}" style="max-width: 300px;">
+  {% endif %}
+
+  {% if user.is_authenticated %}
+    {% if is_enrolled %}
+      {% if course_completed %}
+        <p class="text-success">Вы прошли этот курс.</p>
+        <a href="{% url 'courses:course_learn' course.pk %}" class="btn btn-primary">Пройти ещё раз</a>
+        <form method="POST" action="{% url 'courses:course_detail' course.pk %}" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="reset_progress" value="1">
+          <button type="submit" class="btn btn-secondary">Сбросить прогресс</button>
+        </form>
+      {% else %}
+        <p class="text-success">Вы записаны на этот курс.</p>
+        <a href="{% url 'courses:course_learn' course.pk %}" class="btn btn-primary">Начать обучение</a>
+      {% endif %}
     {% else %}
-        <p>Уроки не проводяться</p>
+      <a href="{% url 'courses:enroll_course' course.pk %}" class="btn btn-primary">Записаться на курс</a>
     {% endif %}
+  {% else %}
+    <p>Чтобы записаться на курс, <a href="{% url 'login' %}">войдите</a>.</p>
+  {% endif %}
 
-    {% if user.is_authenticated %}
-        {% if is_enrolled %}
-            <p class="text-success">Вы записаны на этот курс</p>
-        {% else %}
-            <a href="{% url 'courses:enroll_course' course.pk %}" class="btn btn-success">Запишитесь на этот курс</a>
+  {% if user.is_staff %}
+    <a href="{% url 'courses:lesson_create' course.pk %}" class="btn btn-success mb-3">Добавить урок</a>
+  {% endif %}
+
+  <h2>Программа обучения</h2>
+
+  <!-- Форма поиска -->
+  <form method="GET" class="mb-3">
+    <div class="input-group">
+      <input type="text" name="search" class="form-control" placeholder="Поиск по названию урока" value="{{ search_query }}">
+      <button type="submit" class="btn btn-primary">Найти</button>
+    </div>
+  </form>
+
+  <!-- Список уроков -->
+  {% for lesson in page_obj %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h3 class="card-title">{{ lesson.title }}</h3>
+        <p class="card-text">{{ lesson.content }}</p>
+        {% if lesson.video %}
+          <p><strong>Видео:</strong> <a href="{{ lesson.video }}">{{ lesson.video }}</a></p>
         {% endif %}
-    {% else %}
-        <p>Пожалуйста <a href="{% url 'login' %}">зарегистрируйтесь</a> чтобы записаться на курс.</p>
-    {% endif %}
+        {% if user.is_staff %}
+          <a href="{% url 'courses:lesson_update' course.pk lesson.pk %}" class="btn btn-warning btn-sm">Редактировать</a>
+          <a href="{% url 'courses:lesson_delete' course.pk lesson.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p>Уроков пока нет.</p>
+  {% endfor %}
+
+  <!-- Пагинация -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}">Предыдущая</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Предыдущая</span>
+        </li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ num }}&search={{ search_query }}">{{ num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}">Следующая</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Следующая</span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 {% endblock %}

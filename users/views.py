@@ -29,7 +29,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, "Вы успешно вошли.")
-            return redirect('profile')
+            return redirect('home')  # Перенаправление на главную страницу
         else:
             messages.error(request, "Неправильный логин или пароль.")
     else:
