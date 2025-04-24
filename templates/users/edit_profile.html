@@ -1,21 +1,24 @@
-{% extends 'base.html' %}
-{% block title %}Редактирование профиля{% endblock %}
+{% extends 'base.html' %}  <!-- Расширяем основной шаблон для наследования структуры страницы -->
+
+{% block title %}Редактирование профиля{% endblock %}  <!-- Устанавливаем заголовок страницы -->
 
 {% block content %}
-  <h1>Редактирование профиля</h1>
+  <h1>Редактирование профиля</h1>  <!-- Заголовок страницы -->
 
+  <!-- Форма редактирования профиля -->
   <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+    {% csrf_token %}  <!-- Защита от CSRF атак, добавляем токен в форму -->
 
-    {{ form.as_p }}
+    {{ form.as_p }}  <!-- Отображаем форму, где каждый элемент формы будет в параграфе -->
 
-    <button type="submit">Сохранить изменения</button>
+    <!-- Кнопка для отправки формы, сохраняя изменения -->
+    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
   </form>
 
-  {% if user.avatar %}
-    <div>
-      <h3>Ваш аватар:</h3>
-      <img src="{{ user.avatar.url }}" alt="Avatar" style="width: 100px; height: 100px;">
+  {% if user.avatar %}  <!-- Проверяем, есть ли у пользователя аватар -->
+    <div class="mt-4">  <!-- Блок с аватаром, добавлен отступ сверху -->
+      <h3>Ваш аватар:</h3>  <!-- Подзаголовок для аватара -->
+      <img src="{{ user.avatar.url }}" alt="Avatar" style="width: 100px; height: 100px;">  <!-- Отображаем изображение аватара, с ограничением по размеру -->
     </div>
   {% endif %}
 {% endblock %}

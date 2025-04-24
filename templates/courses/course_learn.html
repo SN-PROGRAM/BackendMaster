@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ current_lesson.title }} - {{ course.title }} - BackendMaster{% endblock %}
+
+{% block content %}
+  <h1>{{ course.title }}: {{ current_lesson.title }}</h1>
+
+  <div class="row">
+    <!-- Левая часть: материалы урока -->
+    <div class="col-md-6">
+      <h3>Материалы урока</h3>
+
+      <!--
+        Комментарий:
+        1. Проверяем, есть ли материалы для текущего урока, и если они есть, выводим их с помощью фильтра "safe" для безопасного отображения HTML-кода.
+        2. Видео добавлено как ссылка с атрибутом target="_blank" для открытия в новой вкладке.
+      -->
+      {% if current_lesson.material %}
+        <div>{{ current_lesson.material|safe }}</div>
+      {% else %}
+        <p>Материалы для этого урока пока не добавлены.</p>
+      {% endif %}
+
+      {% if current_lesson.video %}
+        <p><strong>Видео:</strong> <a href="{{ current_lesson.video }}" target="_blank">{{ current_lesson.video }}</a></p>
+      {% endif %}
+
+      {% if current_lesson.content %}
+        <h4>Дополнительно</h4>
+        <div>{{ current_lesson.content|safe }}</div>
+      {% endif %}
+
+      <!-- Кнопка "Отметить как пройденный" -->
+      <!--
+        Комментарий:
+        1. Проверка, прошел ли урок, с возможностью отметить его как пройденный.
+        2. Для выполнения задания добавлен параметр mark_completed в ссылку, который отправляется на сервер.
+      -->
+      {% if current_lesson not in enrollment.completed_lessons.all %}
+        <a href="{% url 'courses:course_learn' course.pk %}?lesson_id={{ current_lesson.id }}&mark_completed=1" class="btn btn-success mt-3">Отметить как пройденный</a>
+      {% else %}
+        <p class="text-success mt-3">Этот урок уже пройден!</p>
+      {% endif %}
+    </div>
+
+    <!-- Правая часть: редактор кода -->
+    <div class="col-md-6">
+      <h3>Задание для практики</h3>
+
+      <!--
+        Комментарий:
+        1. Задание выводится с использованием тега <pre> и <code> для сохранения форматирования кода.
+        2. Если задания нет, показываем сообщение об этом.
+      -->
+      {% if current_lesson.task %}
+        <pre><code>{{ current_lesson.task }}</code></pre>
+      {% else %}
+        <p>Задание для этого урока пока не добавлено.</p>
+      {% endif %}
+
+      <h4>Редактор</h4>
+
+      <!--
+        Комментарий:
+        1. Форма с текстовым полем для ввода кода. Добавлен тег textarea для ввода текста с атрибутом rows, чтобы сделать поле удобным для работы.
+        2. Кнопки для отправки и сброса кода.
+      -->
+      <form method="POST">
+        {% csrf_token %}
+        <textarea class="form-control" rows="10" name="user_code" placeholder="Введите ваш код здесь...">{{ user_code }}</textarea>
+        <button type="submit" class="btn btn-primary mt-2">Запустить</button>
+        <button type="reset" class="btn btn-secondary mt-2">Сбросить</button>
+      </form>
+
+      <h4>Результат</h4>
+      <div class="border p-3" style="min-height: 100px;">
+        <!--
+          Комментарий:
+          1. Если код был введен, показываем его результат. Используем фильтр "safe" для безопасного вывода.
+          2. Показ сообщения о результате выполнения кода: правильный или ошибочный результат.
+        -->
+        {% if user_code %}
+          <div class="mb-3">
+            {{ user_code|safe }}
+          </div>
+        {% else %}
+          <p>Введите код и нажмите "Запустить", чтобы увидеть результат.</p>
+        {% endif %}
+
+        {% if is_correct is not None %}
+          {% if is_correct %}
+            <p class="text-success">Всё решено правильно! Можете переходить к следующей теме.</p>
+          {% else %}
+            <p class="text-danger">У вас в коде ошибка! Попробуйте ещё раз.</p>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Навигация по урокам -->
+  <div class="mt-4">
+    <h4>Уроки курса</h4>
+    <ul class="list-group">
+      <!--
+        Комментарий:
+        1. Список уроков с возможностью выделения текущего урока через класс "active".
+        2. Показываем, какие уроки уже пройдены, с помощью дополнительной метки "Пройден".
+      -->
+      {% for lesson in lessons %}
+        <li class="list-group-item {% if lesson == current_lesson %}active{% endif %}">
+          <a href="{% url 'courses:course_learn' course.pk %}?lesson_id={{ lesson.id }}">{{ lesson.title }}</a>
+          {% if lesson in enrollment.completed_lessons.all %}
+            <span class="badge bg-success ms-2">Пройден</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="mt-3">
+      <!--
+        Комментарий:
+        1. Кнопки для перехода к предыдущему и следующему уроку, если они доступны.
+        2. Если нет следующего урока, появляется кнопка для завершения курса.
+      -->
+      {% if previous_lesson_id %}
+        <a href="{% url 'courses:course_learn' course.pk %}?lesson_id={{ previous_lesson_id }}" class="btn btn-primary">Предыдущий урок</a>
+      {% endif %}
+      {% if next_lesson_id %}
+        <a href="{% url 'courses:course_learn' course.pk %}?lesson_id={{ next_lesson_id }}" class="btn btn-primary">Следующий урок</a>
+      {% else %}
+        <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-success">Завершить курс</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

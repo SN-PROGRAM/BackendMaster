@@ -1,35 +1,104 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %}  {# Наследуем основной шаблон сайта #}
 
-{% block title %}{{ course.title }} - BackendMaster{% endblock %}
+{% block title %}{{ course.title }} - BackendMaster{% endblock %}  {# Устанавливаем заголовок страницы, включая название курса #}
 
-{% block content %}
-    <h1>{{ course.title }}</h1>
-    <p>{{ course.description }}</p>
-    <p><strong>Instructor:</strong> {{ course.instructor.username }}</p>
-    <p><strong>Category:</strong> {{ course.category.name }}</p>
-    {% if course.image %}
-        <img src="{{ course.image.url }}" class="img-fluid mb-3" alt="{{ course.title }}" style="max-height: 300px;">
+{% block content %}  {# Начало блока контента страницы #}
+  <h1>{{ course.title }}</h1>  {# Название курса #}
+  <p>{{ course.description }}</p>  {# Описание курса #}
+  <p><strong>Инструктор:</strong> {{ course.instructor.username }}</p>  {# Имя инструктора (логин) #}
+
+  {% if course.image %}  {# Если у курса есть изображение, показываем его #}
+    <img src="{{ course.image }}" alt="{{ course.title }}" style="max-width: 300px;">  {# Отображение изображения с ограничением по ширине #}
+  {% endif %}
+
+  {% if user.is_authenticated %}  {# Проверяем, вошёл ли пользователь в систему #}
+    {% if is_enrolled %}  {# Если пользователь записан на курс #}
+      {% if course_completed %}  {# Если пользователь завершил курс #}
+        <p class="text-success">Вы прошли этот курс.</p>  {# Сообщение о завершении #}
+        <a href="{% url 'courses:course_learn' course.pk %}" class="btn btn-primary">Пройти ещё раз</a>  {# Кнопка "Пройти ещё раз" #}
+        <form method="POST" action="{% url 'courses:course_detail' course.pk %}" style="display:inline;">  {# Форма сброса прогресса #}
+          {% csrf_token %}  {# Токен безопасности #}
+          <input type="hidden" name="reset_progress" value="1">  {# Скрытое поле для сброса #}
+          <button type="submit" class="btn btn-secondary">Сбросить прогресс</button>  {# Кнопка сброса #}
+        </form>
+      {% else %}  {# Если пользователь записан, но ещё не прошёл курс #}
+        <p class="text-success">Вы записаны на этот курс.</p>
+        <a href="{% url 'courses:course_learn' course.pk %}" class="btn btn-primary">Начать обучение</a>  {# Кнопка начать обучение #}
+      {% endif %}
+    {% else %}  {# Если пользователь не записан на курс #}
+      <a href="{% url 'courses:enroll_course' course.pk %}" class="btn btn-primary">Записаться на курс</a>  {# Кнопка записи на курс #}
     {% endif %}
+  {% else %}  {# Если пользователь не авторизован #}
+    <p>Чтобы записаться на курс, <a href="{% url 'login' %}">войдите</a>.</p>  {# Предложение войти в систему #}
+  {% endif %}
 
-    <h2 class="mt-4">Уроки</h2>
-    {% if course.lessons.all %}
-        <ul class="list-group mb-4">
-            {% for lesson in course.lessons.all %}
-                <li class="list-group-item">{{ lesson.title }} (Заказ: {{ lesson.order }})</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Уроки не проводяться</p>
-    {% endif %}
+  {% if user.is_staff %}  {# Если пользователь — администратор/преподаватель #}
+    <a href="{% url 'courses:lesson_create' course.pk %}" class="btn btn-success mb-3">Добавить урок</a>  {# Кнопка добавления урока #}
+  {% endif %}
 
-    {% if user.is_authenticated %}
-        {% if is_enrolled %}
-            <p class="text-success">Вы записаны на этот курс</p>
-        {% else %}
-            <a href="{% url 'courses:enroll_course' course.pk %}" class="btn btn-success">Запишитесь на этот курс</a>
+  <h2>Программа обучения</h2>  {# Заголовок блока с уроками #}
+
+  <!-- Форма поиска -->
+  <form method="GET" class="mb-3">  {# Форма для поиска уроков по названию #}
+    <div class="input-group">
+      <input type="text" name="search" class="form-control" placeholder="Поиск по названию урока" value="{{ search_query }}">  {# Поле ввода #}
+      <button type="submit" class="btn btn-primary">Найти</button>  {# Кнопка поиска #}
+    </div>
+  </form>
+
+  <!-- Список уроков -->
+  {% for lesson in page_obj %}  {# Перебираем уроки на текущей странице #}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h3 class="card-title">{{ lesson.title }}</h3>  {# Название урока #}
+        <p class="card-text">{{ lesson.content }}</p>  {# Содержание (заметки) #}
+        {% if lesson.video %}  {# Если добавлено видео — отображаем ссылку #}
+          <p><strong>Видео:</strong> <a href="{{ lesson.video }}">{{ lesson.video }}</a></p>
         {% endif %}
-    {% else %}
-        <p>Пожалуйста <a href="{% url 'login' %}">зарегистрируйтесь</a> чтобы записаться на курс.</p>
-    {% endif %}
-{% endblock %}
+        {% if user.is_staff %}  {# Только для админа — кнопки редактирования и удаления урока #}
+          <a href="{% url 'courses:lesson_update' course.pk lesson.pk %}" class="btn btn-warning btn-sm">Редактировать</a>
+          <a href="{% url 'courses:lesson_delete' course.pk lesson.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}  {# Если уроков нет #}
+    <p>Уроков пока нет.</p>
+  {% endfor %}
+
+  <!-- Пагинация -->
+  <nav aria-label="Page navigation">  {# Навигация по страницам уроков #}
+    <ul class="pagination">
+      {% if page_obj.has_previous %}  {# Кнопка "Предыдущая", если есть предыдущая страница #}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}">Предыдущая</a>
+        </li>
+      {% else %}  {# Иначе делаем кнопку неактивной #}
+        <li class="page-item disabled">
+          <span class="page-link">Предыдущая</span>
+        </li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}  {# Перебираем все страницы #}
+        {% if page_obj.number == num %}  {# Текущая страница #}
+          <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+          </li>
+        {% else %}  {# Остальные страницы — кликабельны #}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ num }}&search={{ search_query }}">{{ num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}  {# Кнопка "Следующая", если есть следующая страница #}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}">Следующая</a>
+        </li>
+      {% else %}  {# Иначе делаем её неактивной #}
+        <li class="page-item disabled">
+          <span class="page-link">Следующая</span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endblock %}  {# Завершаем блок контента #}

@@ -1,57 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>  <!-- Определяет тип документа как HTML5 -->
+<html lang="en">  <!-- Начало HTML документа с указанием языка (английский) -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}BackendMaster{% endblock %}</title>
+    <meta charset="UTF-8">  <!-- Устанавливает кодировку символов для страницы -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Адаптация страницы для мобильных устройств -->
+    <title>{% block title %}BackendMaster{% endblock %}</title>  <!-- Устанавливает заголовок страницы, можно переопределить в блоке title -->
 
-    {% load static %}
+    {% load static %}  <!-- Загрузка статических файлов для использования в шаблоне -->
 
-    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-    <script src="{% static 'js/bootstrap.bundle.js' %}" defer></script>
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">  <!-- Подключение стилей Bootstrap -->
+    <style>
+        /* Адаптация навигационной панели для работы без JavaScript */
+        .navbar-nav {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;  /* Промежуток между элементами навигации */
+        }
+        .navbar {
+            padding: 10px;  /* Отступы вокруг панели навигации */
+        }
+        .navbar-brand {
+            margin-right: 20px;  /* Отступ справа для бренда */
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;  /* Выравнивание элементов по вертикали */
+            gap: 15px;  /* Промежуток между элементами справа */
+        }
+        @media (max-width: 768px) {
+            /* Медиа-запрос для адаптивности на мобильных устройствах */
+            .navbar-nav {
+                flex-direction: column;  /* Размещение элементов вертикально */
+                gap: 10px;  /* Промежуток между элементами */
+            }
+            .navbar-right {
+                flex-direction: column;  /* Размещение элементов вертикально */
+                align-items: flex-start;  /* Выравнивание по левому краю */
+                gap: 10px;  /* Промежуток между элементами */
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">BackendMaster</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'courses:course_list' %}">Курсы</a>
-                    </li>
-                </ul>
-               <nav class="navbar-expand-lg">
-                   <div class="container">
-                       {% if user.is_authenticated %}
-                           <form method="POST" action="{%  url 'logout' %}">
-                            {%  csrf_token %}
-                           <span class="navbar-text">Привет, {{ user.username }}! <button type="submit">Выйти</button></span>
-                           </form>
-                       {% else %}
-                           <a class="navbar-text" href="{% url 'login' %}">Войти</a>
-                       {% endif %}
-                   </div>
-               </nav>
+    <nav class="navbar navbar-light bg-light">  <!-- Панель навигации с светлой темой -->
+        <div class="container-fluid">  <!-- Контейнер для управления макетом панели -->
+            <a class="navbar-brand" href="{% url 'home' %}">BackendMaster</a>  <!-- Ссылка на главную страницу -->
+            <ul class="navbar-nav">  <!-- Список навигационных ссылок -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'courses:course_list' %}">Курсы</a>  <!-- Ссылка на страницу с курсами -->
+                </li>
+            </ul>
+            <div class="navbar-right">  <!-- Контейнер для правых элементов навигации (аватар и выход) -->
+                {% if user.is_authenticated %}  <!-- Проверка, если пользователь авторизован -->
+                    <a href="{% url 'profile' %}">  <!-- Ссылка на страницу профиля -->
+                        {% if user.avatar %}  <!-- Проверка, есть ли у пользователя аватар -->
+                            <img src="{{ user.avatar.url }}" alt="Аватар" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">  <!-- Отображение аватара -->
+                        {% else %}  <!-- Если аватар не установлен -->
+                            <img src="{% static 'images/default-avatar.png' %}" alt="Аватар" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">  <!-- Использование аватара по умолчанию -->
+                        {% endif %}
+                    </a>
+                    <form method="POST" action="{% url 'logout' %}" style="display: inline;">  <!-- Форма для выхода из аккаунта -->
+                        {% csrf_token %}  <!-- Защита от CSRF-атак -->
+                        <button type="submit" class="btn btn-link" style="text-decoration: none;">Выйти</button>  <!-- Кнопка для выхода -->
+                    </form>
+                {% else %}  <!-- Если пользователь не авторизован -->
+                    <a href="{% url 'login' %}">Войти</a>  <!-- Ссылка на страницу входа -->
+                {% endif %}
             </div>
         </div>
     </nav>
 
-    <div class="container mt-3">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="container mt-3">  <!-- Контейнер для отображения сообщений -->
+        {% if messages %}  <!-- Проверка наличия сообщений -->
+            {% for message in messages %}  <!-- Перебор всех сообщений -->
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">  <!-- Отображение сообщения с тегом (например, success или error) -->
+                    {{ message }}  <!-- Текст сообщения -->
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>  <!-- Кнопка для закрытия сообщения -->
                 </div>
             {% endfor %}
         {% endif %}
     </div>
 
-    <div class="container mt-4">
-        {% block content %}
+    <div class="container mt-4">  <!-- Контейнер для основного контента -->
+        {% block content %}  <!-- Здесь будет вставлен основной контент страницы -->
         {% endblock %}
     </div>
 </body>

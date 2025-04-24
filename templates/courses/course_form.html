@@ -3,11 +3,27 @@
 {% block title %}Создать курс{% endblock %}
 
 {% block content %}
-    <h2>Создание нового курса</h2>
-    <form method="post">
+    <h2 class="mb-4">Создание нового курса</h2>
+
+    <!--
+        Комментарий:
+        1. Добавлен класс "mb-4" к заголовку для отступа снизу — делает шаблон визуально аккуратнее.
+        2. Проверка наличия ошибок формы — если пользователь не заполнил нужные поля, ему покажется сообщение.
+        3. Форма теперь использует enctype="multipart/form-data" — важно, если ты добавляешь изображение или другой файл.
+        4. Использование Bootstrap классов (alert, btn, mb и т.д.) помогает придать интерфейсу единый стиль.
+    -->
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Пожалуйста, исправьте ошибки в форме.</strong>
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Создать курс</button>
     </form>
+
     <a href="{% url 'courses:course_list' %}" class="btn btn-secondary mt-3">Назад</a>
 {% endblock %}
