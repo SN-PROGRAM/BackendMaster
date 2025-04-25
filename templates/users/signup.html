@@ -1,56 +1,57 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}  <!-- Наследуем основной шаблон страницы, чтобы использовать общий макет -->
 
-{% block title %}Регистрация{% endblock %}
+{% block title %}Регистрация{% endblock %}  <!-- Устанавливаем заголовок страницы как "Регистрация" -->
 
 {% block content %}
-  <h1>Регистрация</h1>
+  <h1>Регистрация</h1>  <!-- Заголовок страницы, который будет отображён в теле контента -->
 
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
+  <form method="POST" enctype="multipart/form-data">  <!-- Форма для регистрации пользователя, с поддержкой загрузки файлов (например, аватара) -->
+    {% csrf_token %}  <!-- Защита от CSRF-атак -->
+
+    {{ form.non_field_errors }}  <!-- Отображаем ошибки, которые не связаны с отдельными полями формы -->
 
     <div>
-      <label for="{{ form.nickname.id_for_label }}">Никнейм:</label><br>
-      {{ form.nickname }}
-      {% for error in form.nickname.errors %}
-        <div class="text-danger">{{ error }}</div>
+      <label for="{{ form.nickname.id_for_label }}">Никнейм:</label><br>  <!-- Мета-данные для поля "Никнейм" -->
+      {{ form.nickname }}  <!-- Поле ввода для никнейма -->
+      {% for error in form.nickname.errors %}  <!-- Перебираем ошибки поля "Никнейм" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
       {% endfor %}
     </div>
 
     <div>
-      <label for="{{ form.email.id_for_label }}">Email:</label><br>
-      {{ form.email }}
-      {% for error in form.email.errors %}
-        <div class="text-danger">{{ error }}</div>
+      <label for="{{ form.email.id_for_label }}">Email:</label><br>  <!-- Мета-данные для поля "Email" -->
+      {{ form.email }}  <!-- Поле ввода для email -->
+      {% for error in form.email.errors %}  <!-- Перебираем ошибки поля "Email" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
       {% endfor %}
     </div>
 
     <div>
-      <label for="{{ form.password1.id_for_label }}">Пароль:</label><br>
-      {{ form.password1 }}
-      {% for error in form.password1.errors %}
-        <div class="text-danger">{{ error }}</div>
+      <label for="{{ form.password1.id_for_label }}">Пароль:</label><br>  <!-- Мета-данные для поля "Пароль" -->
+      {{ form.password1 }}  <!-- Поле ввода для пароля -->
+      {% for error in form.password1.errors %}  <!-- Перебираем ошибки поля "Пароль" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
       {% endfor %}
     </div>
 
     <div>
-      <label for="{{ form.password2.id_for_label }}">Подтверждение пароля:</label><br>
-      {{ form.password2 }}
-      {% for error in form.password2.errors %}
-        <div class="text-danger">{{ error }}</div>
+      <label for="{{ form.password2.id_for_label }}">Подтверждение пароля:</label><br>  <!-- Мета-данные для поля "Подтверждение пароля" -->
+      {{ form.password2 }}  <!-- Поле ввода для подтверждения пароля -->
+      {% for error in form.password2.errors %}  <!-- Перебираем ошибки поля "Подтверждение пароля" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
       {% endfor %}
     </div>
 
     <div>
-      <label for="{{ form.avatar.id_for_label }}">Аватар:</label><br>
-      {{ form.avatar }}
-      {% for error in form.avatar.errors %}
-        <div class="text-danger">{{ error }}</div>
+      <label for="{{ form.avatar.id_for_label }}">Аватар:</label><br>  <!-- Мета-данные для поля "Аватар" -->
+      {{ form.avatar }}  <!-- Поле для загрузки аватара -->
+      {% for error in form.avatar.errors %}  <!-- Перебираем ошибки поля "Аватар" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
       {% endfor %}
     </div>
 
-    <button type="submit">Зарегистрироваться</button>
+    <button type="submit">Зарегистрироваться</button>  <!-- Кнопка для отправки формы регистрации -->
   </form>
 
-  <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войдите здесь</a></p>
+  <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войдите здесь</a></p>  <!-- Ссылка для перехода на страницу входа для уже зарегистрированных пользователей -->
 {% endblock %}

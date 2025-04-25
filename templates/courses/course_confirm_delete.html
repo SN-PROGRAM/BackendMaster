@@ -1,14 +1,29 @@
+{# Расширяем базовый шаблон base.html, чтобы использовать общую структуру страницы (например, хедер, футер) #}
 {% extends 'base.html' %}
-{% load static %}
 
+{# Устанавливаем заголовок страницы, который будет отображаться в теге <title> #}
 {% block title %}Удалить курс - BackendMaster{% endblock %}
 
+{# Начало блока основного содержимого страницы #}
 {% block content %}
+
+    {# Заголовок страницы #}
     <h1>Удалить курс</h1>
-    <p>Вы уверены, что хотите удалить "{{ object.title }}"?</p>
-    <form method="post" class="mt-4">
+
+    {# Текст с предупреждением об удалении, выводим название курса через object.title #}
+    <p>Вы уверены, что хотите удалить курс "{{ object.title }}"?</p>
+
+    {# Форма отправляется методом POST (так как удаление изменяет данные на сервере) #}
+    <form method="POST">
+        {# Токен защиты от CSRF-атак (обязательно для всех POST-запросов в Django) #}
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Да, удалить</button>
-        <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">Назад</a>
+
+        {# Кнопка отправки формы (удаление курса) #}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+
+        {# Ссылка для отмены действия и возврата к списку курсов #}
+        <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">Отмена</a>
     </form>
+
+{# Закрываем блок основного содержимого #}
 {% endblock %}

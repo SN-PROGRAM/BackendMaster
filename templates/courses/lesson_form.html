@@ -8,6 +8,8 @@
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-primary">Сохранить</button>
+
+    {# Кнопка отмены редактирования или добавления, в зависимости от того, создаём ли новый урок или редактируем существующий #}
     {% if form.instance.pk %}
       <a href="{% url 'courses:course_detail' pk=request.resolver_match.kwargs.course_pk %}" class="btn btn-secondary">Отмена</a>
     {% else %}
