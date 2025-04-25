@@ -44,11 +44,6 @@
     <nav class="navbar navbar-light bg-light">  <!-- Панель навигации с светлой темой -->
         <div class="container-fluid">  <!-- Контейнер для управления макетом панели -->
             <a class="navbar-brand" href="{% url 'home' %}">BackendMaster</a>  <!-- Ссылка на главную страницу -->
-            <ul class="navbar-nav">  <!-- Список навигационных ссылок -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'courses:course_list' %}">Курсы</a>  <!-- Ссылка на страницу с курсами -->
-                </li>
-            </ul>
             <div class="navbar-right">  <!-- Контейнер для правых элементов навигации (аватар и выход) -->
                 {% if user.is_authenticated %}  <!-- Проверка, если пользователь авторизован -->
                     <a href="{% url 'profile' %}">  <!-- Ссылка на страницу профиля -->
