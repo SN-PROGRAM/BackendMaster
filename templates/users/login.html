@@ -4,6 +4,7 @@
 {% block title %}Вход в систему{% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
@@ -85,3 +86,53 @@
   <p class="mt-3">Нет аккаунта? <a href="{% url 'users:signup' %}">Зарегистрируйтесь</a></p>
 {% endblock %}
 >>>>>>> 8977c09c7c1ddaa8390b3e50f67eaf3f59595a24
+=======
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'images/logo.png' %}" alt="Логотип" height="50" class="mb-3">
+                        <h2 class="fw-bold text-primary">Вход в систему</h2>
+                        <p class="text-muted">Введите свои учетные данные</p>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">Запомнить меня</label>
+                            </div>
+                            <a href="#" class="text-decoration-none">Забыли пароль?</a>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary py-2">
+                                <i class="fas fa-sign-in-alt me-2"></i>Войти
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Нет аккаунта? <a href="{% url 'signup' %}" class="text-decoration-none">Зарегистрироваться</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+>>>>>>> d624a361c9ac610cebdf7d366e7f1647a32f4e16
