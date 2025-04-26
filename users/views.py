@@ -23,6 +23,7 @@ from django.contrib.auth.views import (
 )
 # Импорт кастомной формы для запроса сброса пароля
 from .forms import ForgotPasswordForm
+from django.contrib.auth.forms import SetPasswordForm
 
 
 # Представление регистрации нового пользователя
@@ -87,7 +88,7 @@ def edit_profile(request):
             # обновляем хеш сессии, чтобы не выкинуло после смены пароля
             update_session_auth_hash(request, user)
             messages.success(request, "Профиль успешно обновлён.")  # сообщаем об успехе
-            return redirect('profile')  # перенаправляем на страницу профиля
+            return redirect('users:profile')  # перенаправляем на страницу профиля
         else:
             messages.error(request, "Пожалуйста, введите корректные данные")  # сообщаем об ошибке
     else:
@@ -95,26 +96,21 @@ def edit_profile(request):
     # отображаем шаблон редактирования профиля с формой
     return render(request, 'users/edit_profile.html', {'form': form})
 
-
-# CBV для отправки письма со ссылкой на сброс пароля
 class ForgotPasswordView(PasswordResetView):
-    template_name = 'users/reset/password_reset_form.html'         # шаблон формы запроса
-    form_class = ForgotPasswordForm                               # кастомная форма запроса пароля
-    email_template_name = 'users/reset/password_reset_email.html' # шаблон письма
-    # success_url — куда редирект после успешной отправки письма
+    template_name = 'users/reset/password_reset_form.html'
+    form_class = ForgotPasswordForm
+    email_template_name = 'users/reset/password_reset_email.html'
     success_url = reverse_lazy('users:password_reset_done')
 
-
-# CBV, отображающий страницу с уведомлением об отправке письма
 class ForgotPasswordDoneView(PasswordResetDoneView):
-    template_name = 'users/reset/password_reset_done.html'        # шаблон подтверждения отправки
-
+    template_name = 'users/reset/password_reset_done.html'
 
 class ForgotPasswordConfirmView(PasswordResetConfirmView):
     template_name = 'users/reset/password_reset_confirm.html'
+    form_class = SetPasswordForm  # важно!
+    success_url = reverse_lazy('users:password_reset_complete')
 
-
-# CBV для финального подтверждения успешного сброса пароля
 class ForgotPasswordCompleteView(PasswordResetCompleteView):
     template_name = 'users/reset/password_reset_complete.html'
+    # здесь можно переадресовать, например, на логин
     success_url = reverse_lazy('users:login')
