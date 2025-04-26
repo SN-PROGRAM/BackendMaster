@@ -9,7 +9,7 @@ urlpatterns = [
     path('', course_views.CourseListView.as_view(), name='home'),  # Главная страница сайта — список всех курсов (через CourseListView)
     path('admin/', admin.site.urls),  # Админ-панель Django (доступна по адресу /admin/)
     path('courses/', include('courses.urls')),  # Подключение маршрутов из приложения "courses" (курсы)
-    path('accounts/', include('users.urls')),  # Подключение маршрутов из приложения "users" (регистрация, вход и т.д.)
+    path('', include('users.urls')),  # Подключение маршрутов из приложения "users" (регистрация, вход и т.д.)
 ]
 
 # Если включен режим отладки (DEBUG = True), подключаем обработку медиафайлов (например, изображений курсов)

@@ -80,5 +80,46 @@
             <p>Уже есть аккаунт? <a href="{% url 'login' %}" class="auth-link">Войти</a></p>
         </div>
     </div>
+<<<<<<< HEAD
 </div>
 {% endblock %}
+=======
+
+    <div>
+      <label for="{{ form.email.id_for_label }}">Email:</label><br>  <!-- Мета-данные для поля "Email" -->
+      {{ form.email }}  <!-- Поле ввода для email -->
+      {% for error in form.email.errors %}  <!-- Перебираем ошибки поля "Email" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
+      {% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.password1.id_for_label }}">Пароль:</label><br>  <!-- Мета-данные для поля "Пароль" -->
+      {{ form.password1 }}  <!-- Поле ввода для пароля -->
+      {% for error in form.password1.errors %}  <!-- Перебираем ошибки поля "Пароль" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
+      {% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.password2.id_for_label }}">Подтверждение пароля:</label><br>  <!-- Мета-данные для поля "Подтверждение пароля" -->
+      {{ form.password2 }}  <!-- Поле ввода для подтверждения пароля -->
+      {% for error in form.password2.errors %}  <!-- Перебираем ошибки поля "Подтверждение пароля" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
+      {% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.avatar.id_for_label }}">Аватар:</label><br>  <!-- Мета-данные для поля "Аватар" -->
+      {{ form.avatar }}  <!-- Поле для загрузки аватара -->
+      {% for error in form.avatar.errors %}  <!-- Перебираем ошибки поля "Аватар" -->
+        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
+      {% endfor %}
+    </div>
+
+    <button type="submit">Зарегистрироваться</button>  <!-- Кнопка для отправки формы регистрации -->
+  </form>
+
+  <p>Уже есть аккаунт? <a href="{% url 'users:login' %}">Войдите здесь</a></p>  <!-- Ссылка для перехода на страницу входа для уже зарегистрированных пользователей -->
+{% endblock %}
+>>>>>>> 8977c09c7c1ddaa8390b3e50f67eaf3f59595a24

@@ -11,6 +11,7 @@
             <p>Введите свои учетные данные</p>
         </div>
 
+<<<<<<< HEAD
         <form method="POST" class="auth-form">
             {% csrf_token %}
 
@@ -62,3 +63,25 @@
     </div>
 </div>
 {% endblock %}
+=======
+  <!-- Форма для входа в аккаунт -->
+  <form method="POST">  <!-- Указываем метод отправки формы как POST для безопасной передачи данных -->
+    {% csrf_token %}  <!-- Вставляем токен CSRF для защиты от атак -->
+    {{ form.as_p }}  <!-- Отображаем форму как параграфы, каждый элемент будет в своём <p> -->
+    <!-- Кнопка отправки формы -->
+    <button type="submit" class="btn btn-primary">Войти</button>
+  </form>
+
+  <!-- Кнопка сброса пароля -->
+  <p class="mt-2">
+    <button type="button"
+            class="btn btn-link p-0"
+            onclick="window.location.href='{% url 'users:password_reset' %}'">
+      Забыли пароль?
+    </button>
+  </p>
+
+  <!-- Ссылка для пользователей, у которых нет аккаунта, для перехода на страницу регистрации -->
+  <p class="mt-3">Нет аккаунта? <a href="{% url 'users:signup' %}">Зарегистрируйтесь</a></p>
+{% endblock %}
+>>>>>>> 8977c09c7c1ddaa8390b3e50f67eaf3f59595a24

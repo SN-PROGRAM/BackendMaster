@@ -121,19 +121,19 @@
             <a class="navbar-brand" href="{% url 'home' %}">BackendMaster</a>  <!-- Ссылка на главную страницу -->
             <div class="navbar-right">  <!-- Контейнер для правых элементов навигации (аватар и выход) -->
                 {% if user.is_authenticated %}  <!-- Проверка, если пользователь авторизован -->
-                    <a href="{% url 'profile' %}">  <!-- Ссылка на страницу профиля -->
+                    <a href="{% url 'users:profile' %}">  <!-- Ссылка на страницу профиля -->
                         {% if user.avatar %}  <!-- Проверка, есть ли у пользователя аватар -->
                             <img src="{{ user.avatar.url }}" alt="Аватар" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">  <!-- Отображение аватара -->
                         {% else %}  <!-- Если аватар не установлен -->
                             <img src="{% static 'images/default-avatar.png' %}" alt="Аватар" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">  <!-- Использование аватара по умолчанию -->
                         {% endif %}
                     </a>
-                    <form method="POST" action="{% url 'logout' %}" style="display: inline;">  <!-- Форма для выхода из аккаунта -->
+                    <form method="POST" action="{% url 'users:logout' %}" style="display: inline;">  <!-- Форма для выхода из аккаунта -->
                         {% csrf_token %}  <!-- Защита от CSRF-атак -->
                         <button type="submit" class="btn btn-link">Выйти</button>  <!-- Кнопка для выхода -->
                     </form>
                 {% else %}  <!-- Если пользователь не авторизован -->
-                    <a href="{% url 'login' %}">Войти</a>  <!-- Ссылка на страницу входа -->
+                    <a href="{% url 'users:login' %}">Войти</a>  <!-- Ссылка на страницу входа -->
                 {% endif %}
             </div>
         </div>
