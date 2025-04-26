@@ -1,57 +1,84 @@
-{% extends 'base.html' %}  <!-- Наследуем основной шаблон страницы, чтобы использовать общий макет -->
+{% extends 'base.html' %}
 
-{% block title %}Регистрация{% endblock %}  <!-- Устанавливаем заголовок страницы как "Регистрация" -->
+{% block title %}Регистрация{% endblock %}
 
 {% block content %}
-  <h1>Регистрация</h1>  <!-- Заголовок страницы, который будет отображён в теле контента -->
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2><i class="fas fa-user-plus"></i> Создать аккаунт</h2>
+        </div>
 
-  <form method="POST" enctype="multipart/form-data">  <!-- Форма для регистрации пользователя, с поддержкой загрузки файлов (например, аватара) -->
-    {% csrf_token %}  <!-- Защита от CSRF-атак -->
+        <form method="POST" enctype="multipart/form-data" class="auth-form">
+            {% csrf_token %}
 
-    {{ form.non_field_errors }}  <!-- Отображаем ошибки, которые не связаны с отдельными полями формы -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-    <div>
-      <label for="{{ form.nickname.id_for_label }}">Никнейм:</label><br>  <!-- Мета-данные для поля "Никнейм" -->
-      {{ form.nickname }}  <!-- Поле ввода для никнейма -->
-      {% for error in form.nickname.errors %}  <!-- Перебираем ошибки поля "Никнейм" -->
-        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
-      {% endfor %}
+            <div class="form-group">
+                <div class="input-group">
+                    {{ form.nickname }}
+                    <label for="{{ form.nickname.id_for_label }}">{{ form.nickname.label }}</label>
+                    {% for error in form.nickname.errors %}
+                        <div class="error-text">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    {{ form.email }}
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                    {% for error in form.email.errors %}
+                        <div class="error-text">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    {{ form.password1 }}
+                    <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                    {% for error in form.password1.errors %}
+                        <div class="error-text">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    {{ form.password2 }}
+                    <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                    {% for error in form.password2.errors %}
+                        <div class="error-text">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group avatar-upload">
+                <label for="{{ form.avatar.id_for_label }}" class="avatar-label">
+                    <i class="fas fa-camera"></i> {{ form.avatar.label }}
+                    {{ form.avatar }}
+                </label>
+                {% for error in form.avatar.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="auth-btn">
+                <span>Зарегистрироваться</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Уже есть аккаунт? <a href="{% url 'login' %}" class="auth-link">Войти</a></p>
+        </div>
     </div>
-
-    <div>
-      <label for="{{ form.email.id_for_label }}">Email:</label><br>  <!-- Мета-данные для поля "Email" -->
-      {{ form.email }}  <!-- Поле ввода для email -->
-      {% for error in form.email.errors %}  <!-- Перебираем ошибки поля "Email" -->
-        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
-      {% endfor %}
-    </div>
-
-    <div>
-      <label for="{{ form.password1.id_for_label }}">Пароль:</label><br>  <!-- Мета-данные для поля "Пароль" -->
-      {{ form.password1 }}  <!-- Поле ввода для пароля -->
-      {% for error in form.password1.errors %}  <!-- Перебираем ошибки поля "Пароль" -->
-        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
-      {% endfor %}
-    </div>
-
-    <div>
-      <label for="{{ form.password2.id_for_label }}">Подтверждение пароля:</label><br>  <!-- Мета-данные для поля "Подтверждение пароля" -->
-      {{ form.password2 }}  <!-- Поле ввода для подтверждения пароля -->
-      {% for error in form.password2.errors %}  <!-- Перебираем ошибки поля "Подтверждение пароля" -->
-        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
-      {% endfor %}
-    </div>
-
-    <div>
-      <label for="{{ form.avatar.id_for_label }}">Аватар:</label><br>  <!-- Мета-данные для поля "Аватар" -->
-      {{ form.avatar }}  <!-- Поле для загрузки аватара -->
-      {% for error in form.avatar.errors %}  <!-- Перебираем ошибки поля "Аватар" -->
-        <div class="text-danger">{{ error }}</div>  <!-- Отображаем ошибки в красном цвете -->
-      {% endfor %}
-    </div>
-
-    <button type="submit">Зарегистрироваться</button>  <!-- Кнопка для отправки формы регистрации -->
-  </form>
-
-  <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войдите здесь</a></p>  <!-- Ссылка для перехода на страницу входа для уже зарегистрированных пользователей -->
+</div>
 {% endblock %}

@@ -6,42 +6,117 @@
     <title>{% block title %}BackendMaster{% endblock %}</title>  <!-- Устанавливает заголовок страницы, можно переопределить в блоке title -->
 
     {% load static %}  <!-- Загрузка статических файлов для использования в шаблоне -->
-
+    <link href="{% static 'css/BCstyle.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">  <!-- Подключение стилей Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">  <!-- Иконки Font Awesome -->
     <style>
-        /* Адаптация навигационной панели для работы без JavaScript */
+        /* Адаптация навигационной панели в стиле auth-форм */
+        .navbar {
+            padding: 1rem 2rem;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: #2a6fba;
+            font-size: 1.2rem;
+        }
+
         .navbar-nav {
             display: flex;
             flex-direction: row;
-            gap: 15px;  /* Промежуток между элементами навигации */
+            gap: 1.5rem;
         }
-        .navbar {
-            padding: 10px;  /* Отступы вокруг панели навигации */
-        }
-        .navbar-brand {
-            margin-right: 20px;  /* Отступ справа для бренда */
-        }
+
         .navbar-right {
             display: flex;
-            align-items: center;  /* Выравнивание элементов по вертикали */
-            gap: 15px;  /* Промежуток между элементами справа */
+            align-items: center;
+            gap: 1.5rem;
         }
+
+        .navbar-right a {
+            color: #2a6fba;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .navbar-right a:hover {
+            color: #1a4b8c;
+            text-decoration: underline;
+        }
+
+        .btn-link {
+            color: #2a6fba;
+            font-weight: 500;
+            padding: 0;
+            border: none;
+            background: none;
+        }
+
+        .btn-link:hover {
+            color: #1a4b8c;
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         @media (max-width: 768px) {
-            /* Медиа-запрос для адаптивности на мобильных устройствах */
+            .navbar {
+                padding: 1rem;
+            }
+
             .navbar-nav {
-                flex-direction: column;  /* Размещение элементов вертикально */
-                gap: 10px;  /* Промежуток между элементами */
+                flex-direction: column;
+                gap: 1rem;
             }
+
             .navbar-right {
-                flex-direction: column;  /* Размещение элементов вертикально */
-                align-items: flex-start;  /* Выравнивание по левому краю */
-                gap: 10px;  /* Промежуток между элементами */
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                margin-top: 1rem;
             }
+        }
+
+        /* Стили для сообщений в стиле auth-форм */
+        .alert {
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .btn-close {
+            opacity: 0.7;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light">  <!-- Панель навигации с светлой темой -->
+    <nav class="navbar navbar-expand-lg navbar-light">  <!-- Панель навигации с светлой темой -->
         <div class="container-fluid">  <!-- Контейнер для управления макетом панели -->
             <a class="navbar-brand" href="{% url 'home' %}">BackendMaster</a>  <!-- Ссылка на главную страницу -->
             <div class="navbar-right">  <!-- Контейнер для правых элементов навигации (аватар и выход) -->
@@ -55,7 +130,7 @@
                     </a>
                     <form method="POST" action="{% url 'logout' %}" style="display: inline;">  <!-- Форма для выхода из аккаунта -->
                         {% csrf_token %}  <!-- Защита от CSRF-атак -->
-                        <button type="submit" class="btn btn-link" style="text-decoration: none;">Выйти</button>  <!-- Кнопка для выхода -->
+                        <button type="submit" class="btn btn-link">Выйти</button>  <!-- Кнопка для выхода -->
                     </form>
                 {% else %}  <!-- Если пользователь не авторизован -->
                     <a href="{% url 'login' %}">Войти</a>  <!-- Ссылка на страницу входа -->
